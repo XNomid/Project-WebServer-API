@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="финансы, инвестиции, форекс, кредиты, вклады, курс доллара" />
+    <meta name="description" content="FinanceGuru.ru — лучший финансовый портал рунета! Советы, аналитика, котировки онлайн!" />
+    <title>FinanceGuru.ru — Ваш Финансовый Советник №1 в Рунете!</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+</head>
+<body>
+
+<script type="text/javascript">
+var RATES_FULL = {{ rates_full | tojson }};
+var CURRENT_USER = {{ ('"' ~ user ~ '"') if user else 'null' }};
+</script>
+
+<table width="800" border="0" cellpadding="0" cellspacing="0" align="center" id="main-wrapper">
+<tr><td>
+
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" class="header-table">
+    <tr>
+      <td width="70" align="center" valign="middle" style="padding:8px;">
+        <img src="/static/coin.gif" width="56" height="56" alt="монета" border="0" title="FinanceGuru.ru" />
+      </td>
+      <td valign="middle" style="padding:8px 4px;">
+        <div class="site-title">FinanceGuru.ru</div>
+        <div class="site-slogan">★&nbsp;Ваш персональный финансовый советник в интернете!&nbsp;★&nbsp;Работаем с 2003 года!&nbsp;★</div>
+        <img src="/static/banner_anim.gif" width="360" height="18" alt="" border="0" style="margin-top:4px; display:block;" />
+      </td>
+      <td width="210" align="right" valign="middle" style="padding:8px;">
+        <div class="header-counter">
+          Посетителей сегодня:&nbsp;<b>4&nbsp;827</b><br/>
+          <img src="/static/online.gif"  width="9"  height="9"  alt="" />&nbsp;Онлайн:&nbsp;<b id="online-count">23</b>&nbsp;чел.<br/>
+          <span class="update-ts">Обновлено:&nbsp;<span id="update-time"></span></span>
+        </div>
+      </td>
+    </tr>
+    </table>
+
+    <div class="ticker-wrap">
+      <div class="ticker-label">
+        <img src="/static/online.gif" width="16" height="16" alt="" border="0" style="vertical-align:middle;margin-right:3px;" />КУРСЫ:
+      </div>
+      <div class="ticker-content">
+        <marquee scrollamount="3" behavior="scroll" id="ticker-marquee">
+          {% for item in market %}
+            <span class="tick-item {{ item.color }}">{{ item.name }}: {{ item.price }}</span>&nbsp;&nbsp;◆&nbsp;&nbsp;
+          {% endfor %}
+          <span style="color:#ffdd44; font-size:10px;">⟳ обновляется каждые 5 минут</span>
+        </marquee>
+      </div>
+    </div>
+
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" class="nav-table">
+    <tr>
+      <td class="nav-item"><a href="#tips"       class="nav-link">ГЛАВНАЯ</a></td>
+      <td class="nav-item"><a href="#market"     class="nav-link">КОТИРОВКИ</a></td>
+      <td class="nav-item"><a href="#converter"  class="nav-link">КОНВЕРТЕР</a></td>
+      <td class="nav-item"><a href="#articles"   class="nav-link">СТАТЬИ</a></td>
+      <td class="nav-item"><a href="#write"      class="nav-link">НАПИСАТЬ</a></td>
+      <td class="nav-item"><a href="#calculator" class="nav-link">КАЛЬКУЛЯТОР</a></td>
+      <td class="nav-item"><a href="#chat"       class="nav-link">Бот</a></td>
+      <td class="nav-item"><a href="/secret"     class="nav-link">СЕКРЕТ</a></td>
+    </tr>
+    </table>
+
+    <table width="100%" border="0" cellpadding="4" cellspacing="3" class="content-wrap">
+    <tr valign="top">
+
+      <td width="178" class="sidebar-left">
+
+        <div class="sidebar-block" id="auth-block">
+          <div class="sidebar-title">
+            <img src="/static/users.gif" width="16" height="16" alt="" border="0" style="vertical-align:middle;margin-right:3px;" />ВОЙТИ НА САЙТ
+          </div>
+
+          <div class="sidebar-body" id="login-form-area" {% if user %}style="display:none;"{% endif %}>
+            <div class="form-row">Логин:</div>
+            <input type="text"     id="login-input"    class="old-input inp-full" autocomplete="off" /><br/>
+            <div class="form-row">Пароль:</div>
+            <input type="password" id="password-input" class="old-input inp-full" /><br/>
+            <label style="font-size:10px;"><input type="checkbox" />&nbsp;Запомнить</label><br/><br/>
+            <input type="button" class="old-button btn-full" value="Войти"
+                   onclick="doLogin()" id="login-btn" /><br/>
+            <div id="login-error" class="auth-error"></div><br/>
+            <div style="text-align:center;">
+              <a href="/forgot" class="reg-link">[ Забыли пароль? ]</a><br/>
+              <a href="#" class="reg-link" onclick="showRegForm(); return false;">[ Регистрация ]</a>
+            </div>
+          </div>
+
+          <div class="sidebar-body" id="reg-form-area" style="display:none;">
+            <div style="font-size:11px; font-weight:bold; color:#0d2a5e; margin-bottom:6px;">Новый аккаунт:</div>
+            <div class="form-row">Логин (мин. 3 симв.):</div>
+            <input type="text"     id="reg-login"    class="old-input inp-full" autocomplete="off" /><br/>
+            <div class="form-row">Пароль (мин. 4 симв.):</div>
+            <input type="password" id="reg-password" class="old-input inp-full" /><br/>
+            <div class="form-row">Повторите пароль:</div>
+            <input type="password" id="reg-password2" class="old-input inp-full" /><br/>
+            <div class="form-row">Секретный вопрос:</div>
+            <select id="reg-question" class="old-select inp-full">
+              <option value="Девичья фамилия матери">Девичья фамилия матери</option>
+              <option value="Кличка первого питомца">Кличка первого питомца</option>
+              <option value="Любимая книга">Любимая книга</option>
+              <option value="Имя лучшего друга детства">Имя лучшего друга детства</option>
+              <option value="Город рождения отца">Город рождения отца</option>
+            </select><br/>
+            <div class="form-row">Ответ:</div>
+            <input type="text" id="reg-answer" class="old-input inp-full" /><br/><br/>
+            <input type="button" class="old-button btn-full" value="Зарегистрироваться"
+                   onclick="doRegister()" /><br/>
+            <div id="reg-error" class="auth-error"></div><br/>
+            <div style="text-align:center;">
+              <a href="#" style="font-size:10px;" onclick="showLoginForm(); return false;">[ Уже есть аккаунт ]</a>
+            </div>
+          </div>
+
+          <div class="sidebar-body" id="logged-area" {% if not user %}style="display:none;"{% endif %}>
+            <div style="text-align:center;">
+              <img src="/static/users.gif" width="40" height="40" alt="аватар" border="0" /><br/>
+              <div style="margin:5px 0 3px; font-size:12px; font-weight:bold; color:#0d2a5e;">
+                {{ user if user else '' }}<span id="logged-username"></span>
+              </div>
+              <div style="font-size:10px; color:#009900;">● в сети</div>
+              <div style="font-size:10px; color:#888; margin-top:3px;">
+                Участник с {{ user_regdate if user_regdate else '2007' }}
+              </div>
+              <div style="font-size:10px; color:#0d2a5e; margin-top:5px;">
+                💬 Сообщений: <b>{{ user_msg_count if user_msg_count is not none else 0 }}</b>
+              </div>
+            </div><br/>
+            <input type="button" class="old-button btn-full" value="Выйти" onclick="doLogout()" />
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-title">
+            <img src="/static/online.gif" width="16" height="16" alt="" border="0" style="vertical-align:middle;margin-right:3px;" />ОПРОС НЕДЕЛИ
+          </div>
+          <div class="sidebar-body poll-body">
+            <b>Куда вкладываете деньги?</b><br/><br/>
+            <label><input type="radio" name="poll" />&nbsp;Банковский вклад</label><br/>
+            <label><input type="radio" name="poll" />&nbsp;Акции / ПИФы</label><br/>
+            <label><input type="radio" name="poll" />&nbsp;Недвижимость</label><br/>
+            <label><input type="radio" name="poll" />&nbsp;Криптовалюта&nbsp;</label><br/>
+            <input type="button" class="old-button btn-full" value="Проголосовать" /><br/><br/>
+            <span style="color:#888;">Голосов: 2&nbsp;341</span>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-title">КУРСЫ ВАЛЮТ</div>
+          <div class="sidebar-body" style="padding:4px;">
+            <table width="100%" cellpadding="3" cellspacing="0" class="rates-tbl">
+              <tr class="rate-row-alt"><td>🇺🇸 USD</td><td align="right"><b id="rate-usd-rub">{{ rates.usd_rub }}&nbsp;₽</b></td></tr>
+              <tr class="rate-row">    <td>🇪🇺 EUR</td><td align="right"><b id="rate-eur-rub">{{ rates.eur_rub }}&nbsp;₽</b></td></tr>
+              <tr class="rate-row-alt"><td>🇬🇧 GBP</td><td align="right"><b id="rate-gbp-rub">{{ rates.gbp_rub }}&nbsp;₽</b></td></tr>
+              <tr class="rate-row">    <td>🇯🇵 JPY</td><td align="right"><b id="rate-jpy-rub">{{ rates.jpy_rub }}&nbsp;₽</b></td></tr>
+              <tr class="rate-row-alt"><td>🇨🇳 CNY</td><td align="right"><b id="rate-cny-rub">{{ rates.cny_rub }}&nbsp;₽</b></td></tr>
+            </table>
+            <div style="text-align:center; margin-top:4px; font-size:9px;">
+              {% if rates.live %}<span style="color:#009900;">● данные актуальны</span>{% else %}<span style="color:#cc0000;">● нет соединения</span>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="advert-block">
+          <div class="advert-label">
+            <img src="/static/fire.gif" width="16" height="16" alt="" border="0" style="vertical-align:middle;margin-right:3px;" />РЕКЛАМА
+          </div>
+          <div class="advert-body">
+            <div class="blink-text">ГОРЯЧЕЕ!</div>
+            <div style="font-size:10px; color:#ffee88; line-height:16px; margin-top:4px;">
+              <b>«СуперВклад»</b><br/>До 22% годовых!<br/>Срок от 3 мес.<br/><br/>
+              <a href="https://www.banki.ru/products/deposits/" target="_blank" style="color:#ffe000; font-weight:bold;">[ Подробнее &raquo; ]</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-block" style="text-align:center; padding:6px;">
+          <div style="font-size:10px; color:#666;">Нас читают:</div>
+          <div class="rss-count">48&nbsp;293</div>
+          <div style="font-size:10px; color:#666;">подписчиков</div>
+        </div>
+
+        <div style="text-align:center; padding:6px 0;">
+          <img src="/static/award.gif" width="80" height="80" alt="Лучший сайт" border="0" title="Лучший финансовый сайт Рунета 2025!" />
+          <div style="font-size:9px; color:#888; margin-top:2px;">Лучший сайт<br/>Рунета 2025!</div>
+        </div>
+
+      </td>
+
+      <td class="main-content">
+
+        <div class="main-banner">
+          <table width="100%" cellpadding="8" border="0"><tr>
+            <td>
+              <div class="banner-headline">
+                USD/RUB:&nbsp;<span class="big-number" id="banner-usd-rub">{% if rates.live %}{{ rates.usd_rub }}{% else %}—{% endif %}</span>
+                &nbsp;&nbsp;EUR/RUB:&nbsp;<span class="big-number" id="banner-eur-rub">{% if rates.live %}{{ rates.eur_rub }}{% else %}—{% endif %}</span>
+              </div>
+              <div class="banner-sub">Курсы валют в реальном времени&nbsp;•&nbsp;Источник: ExchangeRate-API</div>
+            </td>
+            <td width="110" align="center">
+              <div class="update-badge">LIVE<br/><span id="live-clock"></span></div>
+            </td>
+          </tr></table>
+        </div>
+
+        <a name="tips"></a>
+        <div class="section-header">
+          <img src="/static/bulb.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />СОВЕТЫ И НОВОСТИ ДНЯ
+        </div>
+        <table width="100%" cellpadding="0" cellspacing="3" border="0">
+        {% for tip in tips %}
+        <tr>
+          <td class="tip-cell {% if loop.index % 2 == 0 %}tip-alt{% endif %}">
+            <b class="tip-title">{{ tip.title }}</b>&nbsp;{{ tip.text }}
+          </td>
+        </tr>
+        {% endfor %}
+        </table>
+
+        <a name="market"></a>
+        <div class="section-header">
+          <img src="/static/online.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />ТАБЛИЦА КОТИРОВОК (реальные данные)
+        </div>
+        <table width="100%" cellpadding="5" cellspacing="1" border="0" class="market-table" id="market-table">
+          <tr class="market-header">
+            <th width="26">#</th><th>Инструмент</th><th>Цена</th><th width="70">Статус</th><th width="80">Динамика</th>
+          </tr>
+          {% for item in market %}
+          <tr class="market-row {% if loop.index % 2 == 0 %}market-alt{% endif %}">
+            <td align="center" class="mrow-num">{{ loop.index }}</td>
+            <td><b>{{ item.name }}</b></td>
+            <td align="right"><b>{{ item.price }}</b></td>
+            <td align="center"><span class="live-badge">● LIVE</span></td>
+            <td align="center"><span class="mini-chart {{ item.color }}">▁▂▃▄▅▆</span></td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="market-note">Данные: ExchangeRate-API. Обновляются каждые 5 минут. Не является инвестиционной рекомендацией.</div>
+
+        <a name="converter"></a>
+        <div class="section-header">
+          <img src="/static/convert.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />КОНВЕРТЕР ВАЛЮТ
+        </div>
+        <div class="converter-block">
+          <table width="100%" cellpadding="6" cellspacing="0" border="0">
+          <tr valign="middle">
+            <td width="36%">
+              <div class="conv-label">Сумма:</div>
+              <input type="text" id="conv-amount" class="old-input conv-input" value="100" />
+            </td>
+            <td width="26%">
+              <div class="conv-label">Из валюты:</div>
+              <select id="conv-from" class="old-select conv-select">
+                <option value="USD">🇺🇸 USD — Доллар</option>
+                <option value="EUR">🇪🇺 EUR — Евро</option>
+                <option value="RUB" selected="selected">🇷🇺 RUB — Рубль</option>
+                <option value="GBP">🇬🇧 GBP — Фунт</option>
+                <option value="JPY">🇯🇵 JPY — Йена</option>
+                <option value="CNY">🇨🇳 CNY — Юань</option>
+              </select>
+            </td>
+            <td width="12%" align="center" valign="bottom" style="padding-bottom:4px;">
+              <img src="/static/arrows.gif" width="24" height="24" alt="⇄" border="0"
+                   style="cursor:pointer; display:block; margin:0 auto 2px;"
+                   onclick="swapCurrenciesNow()" title="Поменять местами" />
+              <div style="font-size:9px; color:#888; text-align:center;">поменять</div>
+            </td>
+            <td width="26%">
+              <div class="conv-label">В валюту:</div>
+              <select id="conv-to" class="old-select conv-select">
+                <option value="USD" selected="selected">🇺🇸 USD — Доллар</option>
+                <option value="EUR">🇪🇺 EUR — Евро</option>
+                <option value="RUB">🇷🇺 RUB — Рубль</option>
+                <option value="GBP">🇬🇧 GBP — Фунт</option>
+                <option value="JPY">🇯🇵 JPY — Йена</option>
+                <option value="CNY">🇨🇳 CNY — Юань</option>
+                <option value="BYN">🇧🇾 BYN — Бел. рубль</option>
+                <option value="UAH">🇺🇦 UAH — Гривна</option>
+                <option value="KZT">🇰🇿 KZT — Тенге</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" align="center" style="padding-top:8px;">
+              <input type="button" class="old-button" value="КОНВЕРТИРОВАТЬ!" onclick="convertCurrencyNow()" />
+            </td>
+          </tr>
+          </table>
+          <div class="conv-result-area">
+            <div class="conv-result" id="conv-result">
+              <img src="/static/arrows.gif" width="16" height="16" alt="" border="0" style="vertical-align:middle;margin-right:6px;" />
+              <span id="conv-result-text">Введите сумму и нажмите кнопку</span>
+            </div>
+            <div class="conv-rate-hint" id="conv-rate-hint"></div>
+          </div>
+        </div>
+
+        <a name="articles"></a>
+        <div class="section-header">
+          <img src="/static/newspaper.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />СТАТЬИ ПОЛЬЗОВАТЕЛЕЙ
+        </div>
+        <div id="articles-list">
+          <div class="no-articles-msg" id="no-articles-msg">
+            Статей пока нет. Будь первым — напиши свою статью ниже!
+          </div>
+        </div>
+
+        <a name="write"></a>
+        <div class="section-header">
+          <img src="/static/pencil.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />НАПИСАТЬ СВОЮ СТАТЬЮ
+        </div>
+        <div class="write-block">
+          <table width="100%" cellpadding="6" cellspacing="0" border="0">
+            <tr>
+              <td width="115" class="write-label">Ваше имя:</td>
+              <td><input type="text" id="art-author" class="old-input write-inp" placeholder="Ваш псевдоним" /></td>
+            </tr>
+            <tr>
+              <td class="write-label">Заголовок:</td>
+              <td><input type="text" id="art-title" class="old-input write-inp" placeholder="Заголовок статьи" /></td>
+            </tr>
+            <tr>
+              <td class="write-label" valign="top" style="padding-top:8px;">Текст&nbsp;статьи:</td>
+              <td><textarea id="art-text" class="write-textarea" rows="7"
+                    placeholder="Напишите о финансовом опыте, лайфхаках по экономии..."></textarea></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style="padding-top:4px;">
+                <div id="captcha-block" style="margin: 8px 0;">
+                  <span style="font-size:12px;">Проверка на робота =): <b id="captcha-question"></b></span><br/>
+                  <input type="text" id="captcha-input" class="old-input" placeholder="Ответ" size="5" />
+                  <button type="button" onclick="refreshCaptcha()" class="old-button" style="font-size:11px;">🔄 Обновить</button>
+                </div>
+                <input type="button" class="publish-btn" value="  ОПУБЛИКОВАТЬ!  " onclick="publishArticle()" />
+                &nbsp;<span id="art-error" style="color:#cc0000; font-size:11px;"></span>
+              </td>
+            </tr>
+          </table>
+          <div class="write-note">
+            Пишите о личном опыте, советах по накоплению, разборах банковских продуктов. Статьи сохраняются в вашем браузере =)
+          </div>
+        </div>
+
+        <a name="calculator"></a>
+        <div class="section-header">
+          <img src="/static/calculator.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />КАЛЬКУЛЯТОР БАНКОВСКОГО ВКЛАДА
+        </div>
+        <div class="calculator-block">
+          <table cellpadding="6" cellspacing="0" border="0" width="100%">
+          <tr>
+            <td width="52%">
+              <table cellpadding="4" cellspacing="2" border="0" width="100%">
+                <tr>
+                  <td class="calc-label">Сумма (руб.):</td>
+                  <td><input type="text" id="calc-amount" class="old-input calc-input" value="100000" /></td>
+                </tr>
+                <tr>
+                  <td class="calc-label">Ставка (% год.):</td>
+                  <td><input type="text" id="calc-rate" class="old-input calc-input" value="16" /></td>
+                </tr>
+                <tr>
+                  <td class="calc-label">Срок:</td>
+                  <td>
+                    <select id="calc-months" class="old-select">
+                      <option value="3">3 месяца</option>
+                      <option value="6">6 месяцев</option>
+                      <option value="12" selected="selected">12 месяцев</option>
+                      <option value="24">24 месяца</option>
+                      <option value="36">36 месяцев</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="calc-label">Капитализация:</td>
+                  <td>
+                    <select id="calc-compound" class="old-select">
+                      <option value="no">Нет (простые %)</option>
+                      <option value="yes" selected="selected">Ежемесячная</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" align="center" style="padding-top:10px;">
+                    <input type="button" class="calc-button" value="РАССЧИТАТЬ!" onclick="calculateDeposit()" />
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td valign="top">
+              <div class="calc-result">
+                <div class="calc-result-title">Результат:</div>
+                <div id="calc-output" class="calc-output-default">Введите данные и нажмите «РАССЧИТАТЬ»&nbsp;=)</div>
+              </div>
+            </td>
+          </tr>
+          </table>
+        </div>
+
+        <a name="chat"></a>
+        <div class="section-header">
+          <img src="/static/robot.gif" width="18" height="18" alt="" border="0" style="vertical-align:middle;margin-right:5px;" />ВАШ ФИНАНСОВЫЙ СОВЕТНИК!
+        </div>
+        <div class="chatbot-block">
+          <div class="chatbot-header">
+            <img src="/static/robot.gif" width="28" height="28" alt="бот" border="0" style="vertical-align:middle;" />
+            &nbsp;<b>Бот</b> — онлайн-консультант FinanceGuru.ru
+            &nbsp;<span class="online-dot">●</span>&nbsp;<span class="online-label">в сети</span>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg bot-msg">
+              <b>Бот:</b> Привет! Я - твой финансовый советник! =)
+              Спрашивай про вклады, кредиты, ипотеку, инвестиции — отвечу на всё!
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <table width="100%" cellpadding="2" cellspacing="0"><tr>
+              <td><input type="text" id="chat-input" class="chat-text-input"
+                  placeholder="Введи вопрос..."
+                  onkeydown="if(event.keyCode==13) sendMessage()" /></td>
+              <td width="85" style="padding-left:4px;">
+                <input type="button" class="chat-send-btn" value="Спросить" onclick="sendMessage()" />
+              </td>
+            </tr></table>
+            <div class="chat-hints">Попробуй: «Как накопить на квартиру?» · «Что такое ПИФ?» · «Стоит ли брать ипотеку?»</div>
+          </div>
+        </div>
+
+      </td>
+
+      <td width="158" class="sidebar-right">
+
+        <div class="sidebar-block">
+          <div class="sidebar-title">ТОП СТАТЬИ</div>
+          <div class="sidebar-body">
+            <ol class="top-list" id="top-articles-list">
+              <li style="font-size:10px;color:#aaa;list-style:none;padding:2px 0;">Статей пока нет</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-title">ПОЛЕЗНЫЕ ССЫЛКИ</div>
+          <div class="sidebar-body links-body">
+            <a href="https://www.cbr.ru"           target="_blank" class="sidebar-link ext-link">» ЦБ РФ — cbr.ru</a>
+            <a href="https://www.moex.com"         target="_blank" class="sidebar-link ext-link">» Московская биржа</a>
+            <a href="https://www.nalog.gov.ru"     target="_blank" class="sidebar-link ext-link">» Налоговая РФ (ФНС)</a>
+            <a href="https://www.pfr.gov.ru"       target="_blank" class="sidebar-link ext-link">» Пенсионный фонд</a>
+            <a href="https://www.banki.ru"         target="_blank" class="sidebar-link ext-link">» Banki.ru — вклады</a>
+            <a href="https://www.sravni.ru"        target="_blank" class="sidebar-link ext-link">» Сравни.ру</a>
+            <a href="https://smart-lab.ru"         target="_blank" class="sidebar-link ext-link">» Смарт-Лаб</a>
+            <a href="https://ru.investing.com"     target="_blank" class="sidebar-link ext-link">» Investing.com</a>
+            <a href="https://www.finanz.ru"        target="_blank" class="sidebar-link ext-link">» Финанз.ру</a>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-title">ПАРТНЁРЫ</div>
+          <div class="sidebar-body" style="font-size:10px; text-align:center;">
+            <a href="https://www.sberbank.ru"   target="_blank" class="partner-badge">Сбербанк</a>
+            <a href="https://www.vtb.ru"        target="_blank" class="partner-badge">ВТБ 24</a>
+            <a href="https://alfabank.ru"       target="_blank" class="partner-badge">Альфа-Банк</a>
+            <a href="https://tbank.ru"          target="_blank" class="partner-badge">Т-Банк</a>
+            <a href="https://www.raiffeisen.ru" target="_blank" class="partner-badge">Райффайзен</a>
+          </div>
+        </div>
+
+        <div class="sidebar-block" style="background:#fffbe6; border:2px solid #f0c040;">
+          <div style="font-size:9px;font-weight:bold;color:#b07800;padding:3px 6px;border-bottom:1px solid #f0c040;">РЕКЛАМА</div>
+          <div style="font-size:10px;padding:7px;color:#333;line-height:16px;text-align:center;">
+            <b>Брокер БКС</b><br/>Открой счёт онлайн<br/>за 5 минут!<br/><br/>
+            <a href="https://bcs.ru" target="_blank" style="font-size:10px;color:#0000cc;font-weight:bold;">Открыть счёт &raquo;</a>
+          </div>
+        </div>
+
+      </td>
+
+    </tr>
+    </table>
+
+    <table width="100%" border="0" cellpadding="8" cellspacing="0" class="footer-table">
+    <tr>
+      <td>
+        <div class="footer-links">
+          <a href="#tips">Главная</a> |
+          <a href="#market">Котировки</a> |
+          <a href="#converter">Конвертер</a> |
+          <a href="#articles">Статьи</a> |
+          <a href="#write">Написать статью</a> |
+          <a href="#calculator">Калькулятор</a> |
+          <a href="#chat">Бот</a> |
+          <a href="/secret">Секрет</a>
+        </div>
+        <div class="footer-copy">
+          &copy; 2003–2026 FinanceGuru.ru — Финансовый портал №1 в России!
+          При копировании ссылка обязательна.<br/>
+          <span class="footer-disclaimer">Курсы валют: ExchangeRate-API. Информация носит ознакомительный характер и не является инвестиционной рекомендацией.</span>
+        </div>
+        <div class="footer-counters">Яндекс.Метрика &nbsp;|&nbsp; LiveInternet &nbsp;|&nbsp; Rambler Top100 &nbsp;|&nbsp; Mail.Ru Top</div>
+      </td>
+    </tr>
+    </table>
+
+</td></tr>
+</table>
+
+<script type="text/javascript">
+window.convertCurrencyNow = function() {
+    var amount = parseFloat(document.getElementById('conv-amount').value);
+    if (isNaN(amount)) {
+        document.getElementById('conv-result-text').innerText = 'Введите корректное число';
+        return;
+    }
+    var from = document.getElementById('conv-from').value;
+    var to = document.getElementById('conv-to').value;
+    if (!RATES_FULL || !RATES_FULL[from] || !RATES_FULL[to]) {
+        document.getElementById('conv-result-text').innerText = 'Нет данных о курсах';
+        return;
+    }
+    var result = amount / RATES_FULL[from] * RATES_FULL[to];
+    document.getElementById('conv-result-text').innerText =
+        amount.toFixed(2) + ' ' + from + ' = ' + result.toFixed(4) + ' ' + to;
+    document.getElementById('conv-rate-hint').innerText =
+        '1 ' + from + ' = ' + (RATES_FULL[to] / RATES_FULL[from]).toFixed(6) + ' ' + to;
+};
+
+window.swapCurrenciesNow = function() {
+    var from = document.getElementById('conv-from');
+    var to = document.getElementById('conv-to');
+    var temp = from.value;
+    from.value = to.value;
+    to.value = temp;
+    convertCurrencyNow();
+};
+</script>
+
+<script type="text/javascript" src="/static/script.js"></script>
+</body>
+</html>

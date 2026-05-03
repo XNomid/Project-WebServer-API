@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FinanceGuru.ru — Восстановление пароля</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <style>
+        body { background: #e8e8e8; text-align: center; padding-top: 50px; font-family: Tahoma, sans-serif; }
+        .forgot-box {
+            display: inline-block;
+            background: #fff;
+            border: 2px solid #0d2a5e;
+            padding: 20px 30px;
+            text-align: left;
+            width: 360px;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+        }
+        .forgot-box h2 {
+            font-size: 18px;
+            color: #0d2a5e;
+            margin: 0 0 10px 0;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 6px;
+        }
+        .form-row {
+            font-size: 12px;
+            margin: 8px 0 2px 0;
+            color: #333;
+        }
+        .old-input {
+            width: 100%;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #999;
+            background: #fdfdfd;
+            box-sizing: border-box;
+        }
+        .old-button {
+            background: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+            border: 1px solid #888;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #0d2a5e;
+        }
+        .old-button:hover { background: #fffbe6; }
+        .error-msg { color: #cc0000; font-size: 11px; margin-top: 4px; }
+        .success-msg { color: #007700; font-size: 11px; margin-top: 4px; }
+        .back-link { font-size: 10px; text-align: center; margin-top: 12px; }
+        #step1, #step2 { margin-bottom: 0; }
+        #step2 { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="forgot-box">
+    <h2>Восстановление пароля</h2>
+
+    <!-- Шаг 1: ввод логина -->
+    <div id="step1">
+        <div class="form-row">Введите ваш логин:</div>
+        <input type="text" id="forgot-login" class="old-input" placeholder="Логин" autocomplete="off" />
+        <div id="login-error" class="error-msg"></div>
+        <br/>
+        <button class="old-button" onclick="sendLogin()" style="width:100%;">Далее</button>
+    </div>
+
+    <!-- Шаг 2: вопрос и новый пароль -->
+    <div id="step2">
+        <div class="form-row">Секретный вопрос:</div>
+        <div style="font-weight:bold; font-size:13px; margin:6px 0;" id="question-text"></div>
+        <div class="form-row">Ваш ответ:</div>
+        <input type="text" id="forgot-answer" class="old-input" placeholder="Ответ" autocomplete="off" />
+        <div class="form-row">Новый пароль (мин. 4 символа):</div>
+        <input type="password" id="forgot-newpass" class="old-input" placeholder="Новый пароль" />
+        <div id="reset-error" class="error-msg"></div>
+        <div id="reset-success" class="success-msg"></div>
+        <br/>
+        <button class="old-button" onclick="sendReset()" style="width:100%;">Сменить пароль</button>
+    </div>
+
+    <div class="back-link">
+        <a href="/">← Вернуться на главную</a>
+    </div>
+</div>
+
+<script>
+var currentLogin = '';
+
+function sendLogin() {
+    var login = document.getElementById('forgot-login').value.trim();
+    var errEl = document.getElementById('login-error');
+    errEl.innerHTML = '';
+
+    if (!login) {
+        errEl.innerHTML = 'Введите логин';
+        return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/forgot', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status === 200) {
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                if (resp.status === 'ok' && resp.question) {
+                    document.getElementById('question-text').innerText = resp.question;
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                    currentLogin = login;
+                } else {
+                    errEl.innerHTML = resp.message || 'Пользователь не найден';
+                }
+            } catch(e) {
+                errEl.innerHTML = 'Ошибка сервера';
+            }
+        } else {
+            errEl.innerHTML = 'Ошибка соединения';
+        }
+    };
+    xhr.send(JSON.stringify({ login: login }));
+}
+
+function sendReset() {
+    var answer = document.getElementById('forgot-answer').value.trim();
+    var newPass = document.getElementById('forgot-newpass').value.trim();
+    var errEl = document.getElementById('reset-error');
+    var successEl = document.getElementById('reset-success');
+    errEl.innerHTML = '';
+    successEl.innerHTML = '';
+
+    if (!answer) {
+        errEl.innerHTML = 'Введите ответ на вопрос';
+        return;
+    }
+    if (newPass.length < 4) {
+        errEl.innerHTML = 'Новый пароль должен содержать минимум 4 символа';
+        return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/forgot', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status === 200) {
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                if (resp.status === 'ok') {
+                    successEl.innerHTML = 'Пароль успешно изменён! <a href="/">Войти на сайт</a>';
+                    document.getElementById('forgot-answer').disabled = true;
+                    document.getElementById('forgot-newpass').disabled = true;
+                    document.querySelector('#step2 button').style.display = 'none';
+                } else {
+                    errEl.innerHTML = resp.message || 'Ошибка смены пароля';
+                }
+            } catch(e) {
+                errEl.innerHTML = 'Ошибка сервера';
+            }
+        } else {
+            errEl.innerHTML = 'Ошибка соединения';
+        }
+    };
+    xhr.send(JSON.stringify({
+        login: currentLogin,
+        question: document.getElementById('question-text').innerText,
+        answer: answer,
+        new_password: newPass
+    }));
+}
+</script>
+
+</body>
+</html>
