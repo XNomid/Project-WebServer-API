@@ -7,6 +7,8 @@ import os
 import time
 import sqlite3
 import random
+import logging
+from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,7 +32,7 @@ SECRET_QUESTIONS = [
 
 SYSTEM_PROMPT = """Ты — финансовый советник «Бот», работающий на портале FinanceGuru.ru с 2020 года.
 Отвечай на вопросы по финансам: инвестиции, акции, бюджет, кредиты, вклады, налоги.
-Используй немного устаревшие советы (как будто сейчас 2007 год), но потом исправляйся на актуальную информацию (от 2026 года), упоминай ICQ.
+Используй немного устаревшие советы (как будто сейчас 2007 год), упоминай ICQ, говори про стабильность рубля, советуй класть деньги в Сбербанк под 12% годовых.
 Иногда вставляй смайлики в стиле 2007: =) :) ;) )))
 Отвечай по-русски. Будь дружелюбным и немного наивным, как тот интернет."""
 
@@ -43,6 +45,19 @@ FINANCE_TIPS = [
      "text": "Актуальные курсы доллара и евро — смотри в таблице котировок! Обновляются в реальном времени =)"},
     {"title": "Инвестиции 2026",
      "text": "Bitcoin (BTC): Торгуется в районе $77 000 – $78 000. Ближайшее сопротивление — $80 000, при пробое которого открывается путь к $88 000 в течение мая."},
+]
+
+FINANCE_QUOTES = [
+    "Покупай на слухах, продавай на фактах.",
+    "Лучшее время для инвестиций — вчера.",
+    "Сложный процент — восьмое чудо света.",
+    "Не кладите все яйца в одну корзину.",
+    "Деньги любят тишину.",
+    "Рынок может оставаться иррациональным дольше, чем ты платёжеспособным.",
+    "Инвестируй в то, что понимаешь.",
+    "Волатильность — друг инвестора.",
+    "Прибыль не бывает гарантированной.",
+    "Диверсификация — единственный бесплатный обед."
 ]
 
 _rates_cache = {"data": None, "ts": 0}
@@ -468,5 +483,31 @@ def chat():
         return jsonify({"reply": f"Ошибка: {str(e)}", "status": "error"})
 
 
+@app.route('/api/stats')
+def api_stats():
+    db = get_db()
+    user_count = len(USERS)
+    article_count = db.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
+    gb_count = db.execute("SELECT COUNT(*) FROM guestbook").fetchone()[0]
+    return jsonify({
+        "users": user_count,
+        "articles": article_count,
+        "guestbook_messages": gb_count,
+        "server_time": time.strftime("%d.%m.%Y %H:%M")
+    })
+
+
+@app.route('/api/quote')
+def api_quote():
+    return jsonify({"quote": random.choice(FINANCE_QUOTES), "status": "ok"})
+
+
 if __name__ == "__main__":
+    handler = RotatingFileHandler('finance.log', maxBytes=100000, backupCount=3)
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('FinanceGuru server started')
     app.run(debug=True, port=5000)
